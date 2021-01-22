@@ -4,6 +4,8 @@
  */
 // json entier
 let data;
+// selector reloads data, build once only
+let first = true;
 // les noms des params de chaque json
 let dataNomA = ["delayStart", "rampePWM", "speedWelding", "balayage", "speedWire", "pulseWire", "retractWire", "huitieme", "neuvieme"];
 let len = dataNomA.length;
@@ -45,13 +47,7 @@ request.open('GET', url, true);
 request.onload = function () {
   if (request.status === 200) {
     data = JSON.parse(request.responseText);
-    let option;
-    for (let i = 0; i < data.length; i++) {
-      option = document.createElement('option');
-      option.text = data[i].name;
-      option.value = data[i].id;
-      dropdown.add(option);
-    }
+    setupPulldown();
   } else {
     // Reached the server, but it returned an error
   }
@@ -68,7 +64,22 @@ request.send();
 /**
  * selector onChange()
  * https://www.w3schools.com/jsref/event_onchange.asp
+ * 
  */
+function setupPulldown(){
+  // build only one time
+  if (!first) return;
+
+  let option;
+  for (let i = 0; i < data.length; i++) {
+    option = document.createElement('option');
+    option.text = data[i].name;
+    option.value = data[i].id;
+    dropdown.add(option);
+  }
+  // avoid repeats
+  first = false;
+}
 function selectOnChange(curSelVal) {
   // capture curInd = current json index (groupe de valeurs)
   for (let i = 0; i < data.length; i++) {
@@ -77,8 +88,9 @@ function selectOnChange(curSelVal) {
       break;
     }
   }
-  // maj gui avec nouveau json
-  guiUpdate();
+  // always use original data
+  request.open('GET', url, true);
+  request.send();
 }
 
 
