@@ -8,6 +8,8 @@ let data;
 let first = true;
 // les noms des params de chaque json
 let dataNomA = ["delayStart", "rampePWM", "speedWelding", "balayage", "speedWire", "pulseWire", "retractWire", "huitieme", "neuvieme"];
+// *** la valeur de + ou - correspond à chaque param
+let stepA = [100,5,0.5,0.1,1,1,1,1,1];
 let len = dataNomA.length;
 // current json index
 let curInd = 0;
@@ -105,6 +107,38 @@ function getSlider(id, newVal) {
     // update param of touched slider
     if (id == nom) {
       data[curInd][nom] = newVal;
+      break;
+    }
+  }
+  // update gui
+  guiUpdate();
+}
+
+
+/**
+* boutons plus et moins
+* https://stackoverflow.com/questions/34156282/how-do-i-save-json-to-local-text-file
+*/
+function onPlus(monId) {
+  for (let i = 0; i < len; i++) {
+    // scan params
+    let nom = dataNomA[i];
+    // update param of touched slider
+    if (monId.includes(nom)) {
+      data[curInd][nom] += stepA[i];
+      break;
+    }
+  }
+  // update gui
+  guiUpdate();
+}
+function onMoins(monId) {
+  for (let i = 0; i < len; i++) {
+    // scan params
+    let nom = dataNomA[i];
+    // update param of touched slider
+    if (monId.includes(nom)) {
+      data[curInd][nom] -= stepA[i];
       break;
     }
   }
