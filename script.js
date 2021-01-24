@@ -23,12 +23,25 @@ function guiUpdate() {
 
   // update gui 
   for (let i = 0; i < len; i++) {
+    // data
     let nom = dataNomA[i];
+    let val = Number(data[curInd][nom]);
+    console.log(val);
 
     // always update vals
     let s = document.getElementById(nom);
+    let max = s.max;
+    let min = s.min;
     let sv = document.getElementById(nom + "Val");
-    sv.innerHTML = s.value = data[curInd][nom];
+
+    // les boutons plus et moins
+    let bp = document.getElementById(nom + "Plus");
+    let bm = document.getElementById(nom + "Moins");
+    
+    // update gui
+    sv.innerHTML = s.value = val;
+    bp.disabled = val+stepA[i]>max;
+    bm.disabled = val-stepA[i]<min;
   }
 }
 
