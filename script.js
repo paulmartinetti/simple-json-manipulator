@@ -2,17 +2,21 @@
  * 
  * global vars
  */
-// json entier
+// json entier (données = data)
 let data;
-// selector reloads data, build once only
+// au début on fabrique selector, ce vars rassure qu'il n'ai fabriqué qu'une fois et après, first = false
 let first = true;
+
 // les noms des params de chaque json
+// dataNomA[0] = "delayStart"
 let dataNomA = ["delayStart", "rampePWM", "speedWelding", "balayage", "speedWire", "pulseWire", "retractWire", "huitieme", "neuvieme"];
-// *** la valeur de + ou - correspond à chaque param
-let stepA = [100,5,.5,.1,1,1,1,1,1];
+// len = 9, du 0 au 8 chaque boucle de var "i"
 let len = dataNomA.length;
-// current json index
-let curInd = 0;
+
+// du gui, on va remplir ça une fois avec step, min, max
+let sliderA = [];
+// indice actuel, 0 corréspond à D1_Eco 50, 1 corréspond à D2_Janisol
+let indAct = 0;
 
 /**
  * ALWAYS update gui from data
@@ -21,27 +25,28 @@ let curInd = 0;
 
 function guiUpdate() {
 
-  // update gui 
+  // m-à-j gui des données
   for (let i = 0; i < len; i++) {
-    // data
+    // nom, comme "balayage"
     let nom = dataNomA[i];
-    let val = Number(data[curInd][nom]);
-    console.log(val);
+    // sa valeur il faut forcer Number() sinon il est traité comme texte (String)
+    let val = Number(data[indAct][nom]);
 
-    // always update vals
+    // il faut chercher de nouveau chaque slider
     let s = document.getElementById(nom);
-    let max = s.max;
-    let min = s.min;
+    // et sa valeur montrée
     let sv = document.getElementById(nom + "Val");
 
-    // les boutons plus et moins
+    // les boutons plus et moins, puisque on change leurs états en fonction de min max
     let bp = document.getElementById(nom + "Plus");
     let bm = document.getElementById(nom + "Moins");
-    
+
     // update gui
     sv.innerHTML = s.value = val;
-    bp.disabled = val+stepA[i]>max;
-    bm.disabled = val-stepA[i]<min;
+
+    // l'expression après = on simule le prochain appuis sur + ou - , et s'il sera trop grand ou petit, on désactive le bouton
+    bp.disabled = val + Number(sliderA[i].step) > Number(sliderA[i].max);
+    bm.disabled = val - Number(sliderA[i].step) < Number(sliderA[i].min);
   }
 }
 
@@ -50,18 +55,23 @@ function guiUpdate() {
  * https://www.codebyamir.com/blog/populate-a-select-dropdown-list-with-json
  */
 
+// il n'y a qu'un seul selector
 let dropdown = document.getElementById('designation-dropdown');
+// initialiser
 dropdown.length = 0;
 dropdown.selectedIndex = 0;
 
 const url = 'reglages.json';
 
+// 
 const request = new XMLHttpRequest();
 request.open('GET', url, true);
 
 request.onload = function () {
   if (request.status === 200) {
+    // c'est bon
     data = JSON.parse(request.responseText);
+    // remplir selector
     setupPulldown();
   } else {
     // Reached the server, but it returned an error
@@ -73,16 +83,17 @@ request.onerror = function () {
   console.error('An error occurred fetching the JSON from ' + url);
 };
 
-// c'est parti
+// c'est parti -- premier appel à une fonction
 request.send();
 
 /**
  * selector onChange()
  * https://www.w3schools.com/jsref/event_onchange.asp
  * 
+ * Pulldown = selector
  */
-function setupPulldown(){
-  // build only one time
+function setupPulldown() {
+  // fabrique une fois seulement
   if (!first) return;
 
   let option;
@@ -92,34 +103,50 @@ function setupPulldown(){
     option.value = data[i].id;
     dropdown.add(option);
   }
-  // avoid repeats
+
+  // remplir global var pour gérer le gui
+  for (let i = 0; i < len; i++) {
+    let s = document.getElementById(dataNomA[i]);
+    let obj = {
+      step: s.step,
+      min: s.min,
+      max: s.max
+    };
+    // step, min, max de chaque slider
+    sliderA.push(obj);
+  }
+
+  // une fois seulement (on appel le json à chaque appuis sur selector)
   first = false;
 }
+// 
 function selectOnChange(curSelVal) {
-  // capture curInd = current json index (groupe de valeurs)
+  // capter l'indAct = l'indice actuel du json (un groupe de valeurs)
   for (let i = 0; i < data.length; i++) {
     if (data[i].id == curSelVal) {
-      curInd = i;
+      // trouvé !
+      indAct = i;
       break;
     }
   }
-  // always use original data
+  // rechercher le json de nouveau à chaque appuis du selector
   request.open('GET', url, true);
   request.send();
 }
 
 
 /**
-* slider onChange() -- update session data only, do not save
+* slider onChange() -- si tu appuis sur un slider, on m-à-j les données
 * https://stackoverflow.com/questions/13896685/html5-slider-with-onchange-function
 */
 function getSlider(id, newVal) {
   for (let i = 0; i < len; i++) {
-    // scan params
+    // recherche dans tous les params (balayage, speed, etc)
     let nom = dataNomA[i];
-    // update param of touched slider
+    // param touché
     if (id == nom) {
-      data[curInd][nom] = newVal;
+      // nouvelle valeur du slider, ça vient du gui
+      data[indAct][nom] = newVal;
       break;
     }
   }
@@ -136,15 +163,17 @@ function onPlus(monId) {
   for (let i = 0; i < len; i++) {
     // scan params
     let nom = dataNomA[i];
-    // update param of touched slider
+    // identifier le bouton touché
     if (monId.includes(nom)) {
-      let n = Number(data[curInd][nom]);
-      n += stepA[i];
-      data[curInd][nom] = n.toFixed(2);
+      let n = Number(data[indAct][nom]);
+      // ajoute step à la valeur actuelle
+      n += Number(sliderA[i].step);
+      // m-à-j les données
+      data[indAct][nom] = n.toFixed(2);
       break;
     }
   }
-  // update gui
+  // update gui -- toujours les données conduisent le gui !!!
   guiUpdate();
 }
 function onMoins(monId) {
@@ -153,9 +182,9 @@ function onMoins(monId) {
     let nom = dataNomA[i];
     // update param of touched slider
     if (monId.includes(nom)) {
-      let n = Number(data[curInd][nom]);
-      n -= stepA[i];
-      data[curInd][nom] = n.toFixed(2);
+      let n = Number(data[indAct][nom]);
+      n -= Number(sliderA[i].step);
+      data[indAct][nom] = n.toFixed(2);
       break;
     }
   }

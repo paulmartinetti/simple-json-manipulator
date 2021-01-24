@@ -10,3 +10,4 @@ Then...<br>
 1. Open the unzipped repository folder in Visual Studio Code<br>
 2. Open a new Terminal and type "http-server" without quotes, Enter<br>
 3. I recommend opening localhost://8080 in Chrome, then open Developer Tools which allows a hard refresh (control-refresh) as you make code updates
+4. Version française commentaire dans script.js
