@@ -1,0 +1,13 @@
+{
+  "id": 3,
+  "name": "Janisol_2",
+  "delayStart": 800,
+  "rampePWM": 20,
+  "speedWelding": 1,
+  "balayage": 2,
+  "speedWire": 16,
+  "pulseWire": 2,
+  "retractWire": 4,
+  "huitieme": 6,
+  "neuvieme": 5
+}

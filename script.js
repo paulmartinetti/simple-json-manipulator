@@ -2,16 +2,18 @@
  * 
  * global vars
  */
-// json entier (données = data)
+// json 
 let data;
-// au début on fabrique selector, ce vars rassure qu'il n'ai fabriqué qu'une fois et après, first = false
-let first = true;
-
-// les noms des params de chaque json
-// dataNomA[0] = "delayStart"
-let dataNomA = ["delayStart", "rampePWM", "speedWelding", "balayage", "speedWire", "pulseWire", "retractWire", "huitieme", "neuvieme"];
+// params dans chaque json
+let keyA = [];
 // len = 9, du 0 au 8 chaque boucle de var "i"
-let len = dataNomA.length;
+let len;
+
+// les noms des clients, chacun son json à lui
+let clientA = ["D1_Eco_50", "D2_Janisol", "Janisol_2"];
+let clientAlen = clientA.length;
+
+
 
 // du gui, on va remplir ça une fois avec step, min, max
 let sliderA = [];
@@ -93,8 +95,6 @@ request.send();
  * Pulldown = selector
  */
 function setupPulldown() {
-  // fabrique une fois seulement
-  if (!first) return;
 
   let option;
   for (let i = 0; i < data.length; i++) {
