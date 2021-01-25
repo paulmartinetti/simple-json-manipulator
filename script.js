@@ -13,6 +13,8 @@ let len = 0;
 
 // les noms des projets, chacun son json à lui
 let projetA = ["D1_Eco_50", "D2_Janisol", "Janisol_2"];
+// pour la fonction Save
+let projInd = 0;
 
 // du gui, on va remplir ça une fois avec step, min, max
 let sliderA = [];
@@ -44,6 +46,7 @@ function setupPulldown() {
 // 
 function selectOnChange(curSelVal) {
   // rechercher un json de nouveau à chaque appuis du selector
+  projInd = curSelVal;
   let url = projetA[curSelVal] + ".json"
   request.open('GET', url, true);
   request.send();
@@ -193,6 +196,6 @@ function saveJson() {
   let pkg = JSON.stringify(data);
   var file = new Blob([pkg], { type: 'text/plain' });
   a.href = URL.createObjectURL(file);
-  a.download = 'newJson.json';
+  a.download = projetA[projInd]+'.json';
   a.click();
 }
