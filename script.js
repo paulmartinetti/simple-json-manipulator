@@ -13,8 +13,6 @@ let len = 0;
 
 // les noms des projets, chacun son json à lui
 let projetA = ["D1_Eco_50", "D2_Janisol", "Janisol_2"];
-let projetAlen = projetA.length;
-let projInd = 0;
 
 // du gui, on va remplir ça une fois avec step, min, max
 let sliderA = [];
@@ -32,22 +30,21 @@ function setupPulldown() {
   dropdown.selectedIndex = 0;
   // utilise projetA
   let option;
-  for (let i = 0; i < projetAlen; i++) {
+  for (let i = 0; i < projetA.length; i++) {
     option = document.createElement('option');
     option.text = projetA[i];
     option.value = i;
     dropdown.add(option);
   }
 
-  // initialiser selector
+  // initialiser selector, chercher json, maj gui
   selectOnChange(0);
 }
 
 // 
 function selectOnChange(curSelVal) {
-  projInd = curSelVal;
-  // rechercher le json de nouveau à chaque appuis du selector
-  let url = projetA[projInd] + ".json"
+  // rechercher un json de nouveau à chaque appuis du selector
+  let url = projetA[curSelVal] + ".json"
   request.open('GET', url, true);
   request.send();
 }
@@ -91,6 +88,7 @@ function getKeys(){
     // step, min, max de chaque slider
     sliderA.push(obj);
   }
+  // on a les clés, il faut pas répéter
   keys = true;
 }
 
