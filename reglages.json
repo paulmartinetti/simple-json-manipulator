@@ -4,8 +4,8 @@
         "nom": "D1_Eco 50",
         "delayStart": 1000,
         "rampePWM": 40,
-        "speedWelding": "7.5",
-        "balayage": "0.8",
+        "speedWelding": 7.5,
+        "balayage": 0.8,
         "speedWire": 18,
         "pulseWire": 5,
         "retractWire": 7,
@@ -35,7 +35,7 @@
         "speedWire": 16,
         "pulseWire": 2,
         "retractWire": 4,
-        "huitieme": "10",
+        "huitieme": 10,
         "neuvieme": 5
     }
 }
