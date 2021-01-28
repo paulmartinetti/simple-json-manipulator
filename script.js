@@ -8,15 +8,15 @@ let data;
 let first = true;
 
 // les noms des params de chaque json
-// dataNomA[0] = "delayStart"
-let dataNomA = ["delayStart", "rampePWM", "speedWelding", "balayage", "speedWire", "pulseWire", "retractWire", "huitieme", "neuvieme"];
+// keysA[0] = "delayStart"
+let keysA = [];
 // len = 9, du 0 au 8 chaque boucle de var "i"
-let len = dataNomA.length;
+let len;
 
 // du gui, on va remplir ça une fois avec step, min, max
 let sliderA = [];
 // indice actuel, 0 corréspond à D1_Eco 50, 1 corréspond à D2_Janisol
-let indAct = 0;
+let indAct;
 
 /**
  * ALWAYS update gui from data
@@ -28,7 +28,7 @@ function guiUpdate() {
   // m-à-j gui des données
   for (let i = 0; i < len; i++) {
     // nom, comme "balayage"
-    let nom = dataNomA[i];
+    let nom = keysA[i];
     // sa valeur il faut forcer Number() sinon il est traité comme texte (String)
     let val = Number(data[indAct][nom]);
 
@@ -72,7 +72,7 @@ request.onload = function () {
     // c'est bon
     data = JSON.parse(request.responseText);
     // remplir selector
-    setupPulldown();
+    setupGui();
   } else {
     // Reached the server, but it returned an error
   }
@@ -92,21 +92,28 @@ request.send();
  * 
  * Pulldown = selector
  */
-function setupPulldown() {
+function setupGui() {
   // fabrique une fois seulement
   if (!first) return;
 
   let option;
-  for (let i = 0; i < data.length; i++) {
+  for (const i in data) {
     option = document.createElement('option');
-    option.text = data[i].name;
-    option.value = data[i].id;
+    option.text = data[i].nom;
+    option.value = "projet"+data[i].id;
     dropdown.add(option);
   }
 
+  // fill param key array
+  indAct = "projet1";
+  keysA = Object.keys(data[indAct]);
+  // supprimer "id" et "name"
+  keysA.splice(0,2);
+  len = keysA.length;
+
   // remplir global var pour gérer le gui
   for (let i = 0; i < len; i++) {
-    let s = document.getElementById(dataNomA[i]);
+    let s = document.getElementById(keysA[i]);
     let obj = {
       step: s.step,
       min: s.min,
@@ -122,10 +129,10 @@ function setupPulldown() {
 // 
 function selectOnChange(curSelVal) {
   // capter l'indAct = l'indice actuel du json (un groupe de valeurs)
-  for (let i = 0; i < data.length; i++) {
-    if (data[i].id == curSelVal) {
+  for (const i in data) {
+    if (("projet"+data[i].id) == curSelVal) {
       // trouvé !
-      indAct = i;
+      indAct = "projet"+data[i].id;
       break;
     }
   }
@@ -142,11 +149,11 @@ function selectOnChange(curSelVal) {
 function getSlider(id, newVal) {
   for (let i = 0; i < len; i++) {
     // recherche dans tous les params (balayage, speed, etc)
-    let nom = dataNomA[i];
+    let nom = keysA[i];
     // param touché
     if (id == nom) {
       // nouvelle valeur du slider, ça vient du gui
-      data[indAct][nom] = newVal;
+      data[indAct][nom] = Number(newVal);
       break;
     }
   }
@@ -162,7 +169,7 @@ function getSlider(id, newVal) {
 function onPlus(monId) {
   for (let i = 0; i < len; i++) {
     // scan params
-    let nom = dataNomA[i];
+    let nom = keysA[i];
     // identifier le bouton touché
     if (monId.includes(nom)) {
       let n = Number(data[indAct][nom]);
@@ -179,7 +186,7 @@ function onPlus(monId) {
 function onMoins(monId) {
   for (let i = 0; i < len; i++) {
     // scan params
-    let nom = dataNomA[i];
+    let nom = keysA[i];
     // update param of touched slider
     if (monId.includes(nom)) {
       let n = Number(data[indAct][nom]);
